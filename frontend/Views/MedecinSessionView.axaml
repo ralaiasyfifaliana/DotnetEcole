@@ -1,0 +1,259 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:GestionHospitaliere.Frontend.ViewModels"
+             xmlns:conv="clr-namespace:GestionHospitaliere.Frontend.Converters"
+             x:Class="GestionHospitaliere.Frontend.Views.MedecinSessionView"
+             x:DataType="vm:MedecinSessionViewModel">
+
+    <UserControl.Resources>
+        <conv:ObjectMultiConverter x:Key="EqualConverter" Invert="False"/>
+        <conv:ObjectMultiConverter x:Key="NotEqualConverter" Invert="True"/>
+    </UserControl.Resources>
+
+    <Grid RowDefinitions="Auto, Auto, *">
+        
+        <!-- 1. BARRE DE NAVIGATION & UTILISATEUR -->
+        <Border Grid.Row="0" Background="#1E293B" Padding="20,10">
+            <Grid ColumnDefinitions="*, Auto">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="20" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding LoginMedecin, StringFormat='Bienvenue, {0}'}" Foreground="White" FontWeight="Bold" FontSize="16"/>
+                    <TextBlock Text="{Binding PosteMedecin, StringFormat='Poste : {0}'}" Foreground="#38BDF8" VerticalAlignment="Center"/>
+                </StackPanel>
+                <Button Grid.Column="1" Content="Déconnexion" Command="{Binding DeconnexionCommand}" Background="#EF4444" Foreground="White" FontWeight="Bold"/>
+            </Grid>
+        </Border>
+
+        <!-- 2. SYSTEME D'ONGLETS PERMANENTS -->
+        <Border Grid.Row="1" Background="#0F172A" Padding="15,5,15,0">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <Button Content="📅 Planning" 
+                        Command="{Binding AfficherPlanningTabCommand}"
+                        Background="{Binding IsPlanningTabActive, Converter={x:Null}}"
+                        Foreground="White" FontWeight="Bold" Padding="15,8" CornerRadius="6,6,0,0"/>
+                
+                <Button Content="🩺 Consultation en cours" 
+                        Command="{Binding AfficherConsultationTabCommand}"
+                        IsEnabled="{Binding HasConsultationEnCours}"
+                        Foreground="White" FontWeight="Bold" Padding="15,8" CornerRadius="6,6,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- 3. CONTENU DES ONGLETS -->
+        <Grid Grid.Row="2" Margin="20">
+            
+            <!-- Notification globale -->
+            <TextBlock Text="{Binding NotificationMessage}" Foreground="#2563EB" FontWeight="Bold" Margin="0,0,0,10" VerticalAlignment="Top" HorizontalAlignment="Right"/>
+
+            <!-- ================= ONGLET 1 : PLANNING ================= -->
+            <ScrollViewer IsVisible="{Binding IsPlanningTabActive}">
+                <StackPanel Spacing="15">
+                    
+                    <!-- Zone de recherche & Filtres -->
+                    <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="8" Padding="15">
+                        <Grid ColumnDefinitions="Auto, *, Auto" VerticalAlignment="Center">
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
+                                <DatePicker SelectedDate="{Binding SearchDate}"/>
+                                <Button Content="Chercher" Command="{Binding ChercherDateCommand}" Background="#3B82F6" Foreground="White" FontWeight="SemiBold"/>
+                                <Button Content="Réinitialiser" Command="{Binding ReinitialiserRechercheCommand}" Background="#64748B" Foreground="White" FontWeight="SemiBold"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10">
+                                <Button Content="Demain" Command="{Binding FiltreDemainCommand}" Background="#F1F5F9" Foreground="#1E293B" FontWeight="SemiBold"/>
+                                <Button Content="3 Prochains Jours" Command="{Binding Filtre3JoursCommand}" Background="#F1F5F9" Foreground="#1E293B" FontWeight="SemiBold"/>
+                                <Button Content="Achevés (Aujourd'hui)" Command="{Binding FiltreAchevesCommand}" Background="#10B981" Foreground="White" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <!-- Liste des consultations -->
+                    <ItemsControl ItemsSource="{Binding ConsultationsList}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:ConsultationItemViewModel">
+                                <Border Background="White" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Margin="0,6" Padding="15">
+                                    <Grid ColumnDefinitions="Auto, *, Auto">
+                                        
+                                        <!-- Date et Heure -->
+                                        <Border Grid.Column="0" Background="#F1F5F9" CornerRadius="6" Padding="12,8" Margin="0,0,15,0" VerticalAlignment="Center">
+                                            <StackPanel Spacing="2" HorizontalAlignment="Center">
+                                                <TextBlock Text="{Binding Date, StringFormat='{}{0:dd/MM/yyyy}'}" FontWeight="Bold" FontSize="15" Foreground="#1E293B"/>
+                                                <TextBlock Text="{Binding Date, StringFormat='{}{0:HH:mm}'}" FontWeight="Bold" FontSize="14" Foreground="#2563EB" HorizontalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- Patient -->
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding NomPatient}" FontWeight="Bold" FontSize="16"/>
+                                            <TextBlock Text="{Binding RefCons, StringFormat='Réf : {0}'}" Foreground="#64748B"/>
+                                        </StackPanel>
+
+                                        <!-- Actions -->
+                                        <Panel Grid.Column="2">
+                                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                                <StackPanel.IsVisible>
+                                                    <MultiBinding Converter="{StaticResource NotEqualConverter}">
+                                                        <Binding Path="Consultation"/>
+                                                        <Binding Path="$parent[UserControl].((vm:MedecinSessionViewModel)DataContext).ConsultationAReporter"/>
+                                                    </MultiBinding>
+                                                </StackPanel.IsVisible>
+                                                <Button Content="Reporter" Background="#F59E0B" Foreground="White" FontWeight="Bold"
+                                                        Command="{Binding $parent[UserControl].((vm:MedecinSessionViewModel)DataContext).PreparerReportCommand}"
+                                                        CommandParameter="{Binding}"/>
+                                                <Button Content="Consulter" Background="#10B981" Foreground="White" FontWeight="Bold"
+                                                        Command="{Binding $parent[UserControl].((vm:MedecinSessionViewModel)DataContext).ConsulterCommand}"
+                                                        CommandParameter="{Binding}"/>
+                                            </StackPanel>
+
+                                            <!-- Mode Report -->
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <StackPanel.IsVisible>
+                                                    <MultiBinding Converter="{StaticResource EqualConverter}">
+                                                        <Binding Path="Consultation"/>
+                                                        <Binding Path="$parent[UserControl].((vm:MedecinSessionViewModel)DataContext).ConsultationAReporter"/>
+                                                    </MultiBinding>
+                                                </StackPanel.IsVisible>
+                                                <DatePicker SelectedDate="{Binding $parent[UserControl].((vm:MedecinSessionViewModel)DataContext).ReportDateOffset}"/>
+                                                <TimePicker SelectedTime="{Binding $parent[UserControl].((vm:MedecinSessionViewModel)DataContext).ReportTime}"/>
+                                                <Button Content="Valider" Background="#10B981" Foreground="White" FontWeight="Bold"
+                                                        Command="{Binding $parent[UserControl].((vm:MedecinSessionViewModel)DataContext).ValiderReportCommand}"/>
+                                                <Button Content="Annuler" Background="#EF4444" Foreground="White" FontWeight="Bold"
+                                                        Command="{Binding $parent[UserControl].((vm:MedecinSessionViewModel)DataContext).AnnulerReportCommand}"/>
+                                            </StackPanel>
+                                        </Panel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- ================= ONGLET 2 : FORMULAIRE DE CONSULTATION ================= -->
+            <ScrollViewer IsVisible="{Binding IsConsultationTabActive}">
+                <StackPanel Spacing="15">
+
+                    <!-- PANNEAU D'AFFICHAGE DES ERREURS -->
+                    <Border Background="#FEE2E2" BorderBrush="#EF4444" BorderThickness="1" CornerRadius="8" Padding="12"
+                            IsVisible="{Binding HasError}">
+                        <Grid ColumnDefinitions="Auto, *">
+                            <TextBlock Grid.Column="0" Text="⚠️ " FontSize="16" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{Binding ErrorMessage}" Foreground="#991B1B" FontWeight="Bold" TextWrapping="Wrap" VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+                    
+                    <!-- PANNEAU P : DOSSIER PATIENT -->
+                    <Border Background="White" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Padding="20">
+                        <StackPanel Spacing="15">
+                            <TextBlock Text="👤 INFORMATIONS DU PATIENT" FontWeight="Bold" FontSize="16" Foreground="#1E293B"/>
+                            
+                            <!-- Identifiants fixes (Labels non éditables) -->
+                            <Grid ColumnDefinitions="*, *">
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
+                                    <TextBlock Text="N° Patient :" Foreground="#64748B" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding PatientEnCours.NumPatient}" FontWeight="Bold" FontSize="15" Foreground="#0F172A"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                                    <TextBlock Text="Nom du Patient :" Foreground="#64748B" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding PatientEnCours.NomPatient}" FontWeight="Bold" FontSize="15" Foreground="#0F172A"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Separator Background="#E2E8F0"/>
+
+                            <!-- Champs de formulaire Patient (Éditables avec ComboBox) -->
+                            <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, *" Margin="0,5">
+                                
+                                <!-- État du patient en Liste Déroulante -->
+                                <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,10,10" Spacing="5">
+                                    <TextBlock Text="État du patient :" FontWeight="SemiBold"/>
+                                    <ComboBox ItemsSource="{Binding EtatsPatientsList}" 
+                                              SelectedItem="{Binding EtatPatient}" 
+                                              HorizontalAlignment="Stretch"/>
+                                </StackPanel>
+
+                                <!-- N° Chambre en Liste Déroulante -->
+                                <StackPanel Grid.Row="0" Grid.Column="1" Margin="10,0,0,10" Spacing="5">
+                                    <TextBlock Text="N° Chambre :" FontWeight="SemiBold"/>
+                                    <ComboBox ItemsSource="{Binding ChambresList}" 
+                                              SelectedItem="{Binding NumChambre}" 
+                                              HorizontalAlignment="Stretch"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,10,10,0" Spacing="5">
+                                    <TextBlock Text="Date d'hospitalisation :" FontWeight="SemiBold"/>
+                                    <DatePicker SelectedDate="{Binding DateHospOffset}"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Grid.Column="1" Margin="10,10,0,0" Spacing="5">
+                                    <TextBlock Text="Date de sortie :" FontWeight="SemiBold"/>
+                                    <DatePicker SelectedDate="{Binding DateSortieOffset}"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- PANNEAU C : CONSULTATION & PRESCRIPTION -->
+                    <Border Background="White" BorderBrush="#CBD5E1" BorderThickness="1" CornerRadius="8" Padding="20">
+                        <StackPanel Spacing="15">
+                            <TextBlock Text="🩺CONSULTATION &amp; PRESCRIPTION" FontWeight="Bold" FontSize="16" Foreground="#1E293B"/>
+
+                            <!-- Informations fixes (Labels non éditables) -->
+                            <Grid ColumnDefinitions="*, *">
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
+                                    <TextBlock Text="Réf. Consultation :" Foreground="#64748B" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding ConsultationEnCours.RefCons}" FontWeight="Bold" FontSize="15" Foreground="#2563EB"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                                    <TextBlock Text="Type de Consultation :" Foreground="#64748B" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding ConsultationEnCours.Type}" FontWeight="Bold" FontSize="15" Foreground="#0F172A"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Separator Background="#E2E8F0"/>
+
+                            <!-- Zone de Prescription (Toujours éditable) -->
+                            <StackPanel Spacing="5">
+                                <TextBlock Text="Prescription médicale (Ordonnance) :" FontWeight="SemiBold"/>
+                                <TextBox Text="{Binding Prescription}" AcceptsReturn="True" TextWrapping="Wrap" Height="120" PlaceholderText="Saisir l'ordonnance, médicaments, posologie..."/>
+                            </StackPanel>
+
+                            <!-- Section Facturation -->
+                            <Border Background="#F8FAFC" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="6" Padding="15">
+                                <StackPanel Spacing="10">
+                                    <Grid ColumnDefinitions="*, Auto">
+                                        <TextBlock Grid.Column="0" Text="💳 Détails de la Facturation" FontWeight="Bold" VerticalAlignment="Center"/>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
+                                            <Button Content="Facturer" Command="{Binding ActiverFacturationCommand}" Background="#3B82F6" Foreground="White" FontWeight="Bold" IsVisible="{Binding !IsFacturationActive}"/>
+                                            <Button Content="Annuler Facturation" Command="{Binding AnnulerFacturationCommand}" Background="#EF4444" Foreground="White" FontWeight="Bold" IsVisible="{Binding IsFacturationActive}"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- Champs Facture éditables uniquement si Facturer est activé -->
+                                    <Grid ColumnDefinitions="*, *" IsEnabled="{Binding IsFacturationActive}">
+                                        <StackPanel Grid.Column="0" Margin="0,0,10,0" Spacing="5">
+                                            <TextBlock Text="Objet de la facture :" FontWeight="SemiBold"/>
+                                            <TextBox Text="{Binding ObjetFacture}" PlaceholderText="Ex: Consultation Générale + Analyse"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Margin="10,0,0,0" Spacing="5">
+                                            <TextBlock Text="Frais de consultation (Ar) :" FontWeight="SemiBold"/>
+                                            <NumericUpDown Value="{Binding FraisConsultation}" Minimum="0" Increment="1000"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ACTION FINALE : TERMINER LA CONSULTATION -->
+                    <Button Content="TERMINER LA CONSULTATION" 
+                            Command="{Binding TerminerConsultationCommand}"
+                            Background="#10B981" Foreground="White" 
+                            FontWeight="Bold" FontSize="16" 
+                            Height="50" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+
+                </StackPanel>
+            </ScrollViewer>
+
+        </Grid>
+    </Grid>
+</UserControl>

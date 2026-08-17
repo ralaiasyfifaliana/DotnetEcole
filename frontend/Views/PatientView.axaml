@@ -1,0 +1,302 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:GestionHospitaliere.Frontend.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
+             x:Class="GestionHospitaliere.Frontend.Views.PatientView"
+             x:DataType="vm:PatientsViewModel">
+
+    <ScrollViewer Padding="20">
+        <StackPanel Spacing="20">
+
+            <!-- TITRE DE LA PAGE -->
+            <TextBlock Text="Gestion des Patients"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       Foreground="#1F2937" />
+
+            <!-- BANNIÈRE DE NOTIFICATION -->
+            <Border Background="{Binding NotificationColor}"
+                    IsVisible="{Binding IsNotificationVisible}"
+                    CornerRadius="6" Padding="12,10">
+                <TextBlock Text="{Binding NotificationMessage}"
+                           Foreground="White"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center" />
+            </Border>
+
+            <!-- CARTE 1 : FORMULAIRE D'AJOUT D'UN PATIENT -->
+            <Border Background="White"
+                    CornerRadius="8"
+                    Padding="20"
+                    BoxShadow="0 2 8 0 #15000000">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="Nouveau Patient"
+                               FontSize="16"
+                               FontWeight="Bold"
+                               Foreground="#1F2937" />
+
+                    <Grid ColumnDefinitions="*, *, *" RowDefinitions="Auto">
+                        <StackPanel Grid.Column="0" Margin="0,0,10,0" Spacing="5">
+                            <TextBlock Text="N° Patient" FontSize="12" Foreground="#6B7280" FontWeight="SemiBold" />
+                            <TextBox PlaceholderText="Ex: PAT001"
+                                     Text="{Binding NewNumPatient, Mode=TwoWay}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Margin="0,0,10,0" Spacing="5">
+                            <TextBlock Text="Nom du Patient" FontSize="12" Foreground="#6B7280" FontWeight="SemiBold" />
+                            <TextBox PlaceholderText="Nom et Prénom"
+                                     Text="{Binding NewNomPatient, Mode=TwoWay}" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Spacing="5">
+                            <TextBlock Text="État" FontSize="12" Foreground="#6B7280" FontWeight="SemiBold" />
+                            <ComboBox ItemsSource="{Binding EtatsDisponibles}"
+                                      SelectedItem="{Binding NewEtat, Mode=TwoWay}"
+                                      PlaceholderText="Sélectionner..."
+                                      HorizontalAlignment="Stretch" />
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,5,0,0">
+                        <Button Content="Vider"
+                                Command="{Binding ViderAjoutCommand}"
+                                Background="#E5E7EB"
+                                Foreground="#374151"
+                                Padding="15,8"
+                                CornerRadius="6" />
+
+                        <Button Content="Ajouter le Patient"
+                                Command="{Binding AjouterCommand}"
+                                Background="#10B981"
+                                Foreground="White"
+                                FontWeight="Bold"
+                                Padding="20,8"
+                                CornerRadius="6" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- CARTE 2 : RECHERCHE ET FILTRES (DISPOSITION FLUIDE) -->
+            <Border Background="White"
+                    CornerRadius="8"
+                    Padding="20"
+                    BoxShadow="0 2 8 0 #15000000">
+                <WrapPanel ItemWidth="NaN" ItemHeight="NaN" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,0,15,10">
+                        <TextBlock Text="Rechercher :"
+                                   FontWeight="Bold"
+                                   Foreground="#374151"
+                                   VerticalAlignment="Center" />
+
+                        <TextBox PlaceholderText="Code ou nom..."
+                                 Text="{Binding SearchValeur, Mode=TwoWay}"
+                                 Width="180" />
+                    </StackPanel>
+
+                    <ComboBox ItemsSource="{Binding EtatsDisponibles}"
+                              SelectedItem="{Binding SearchEtat, Mode=TwoWay}"
+                              PlaceholderText="Tous les états"
+                              Width="150"
+                              Margin="0,0,15,10" />
+
+                    <DatePicker SelectedDate="{Binding SearchDateHosp, Mode=TwoWay}"
+                                Width="140"
+                                Margin="0,0,15,10" />
+
+                    <DatePicker SelectedDate="{Binding SearchDateSortie, Mode=TwoWay}"
+                                Width="140"
+                                Margin="0,0,15,10" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,10">
+                        <Button Content="Chercher"
+                                Command="{Binding RechercherCommand}"
+                                Background="#3B82F6"
+                                Foreground="White"
+                                FontWeight="Bold"
+                                Padding="15,8"
+                                CornerRadius="6" />
+
+                        <Button Content="Réinitialiser"
+                                Command="{Binding ReinitialiserCommand}"
+                                Background="#6B7280"
+                                Foreground="White"
+                                FontWeight="Bold"
+                                Padding="15,8"
+                                CornerRadius="6" />
+                    </StackPanel>
+                </WrapPanel>
+            </Border>
+
+            <!-- CARTE 3 : TABLEAU DES PATIENTS -->
+            <Border Background="White"
+                    CornerRadius="8"
+                    Padding="10"
+                    BoxShadow="0 2 8 0 #15000000">
+                <DataGrid ItemsSource="{Binding PatientsList}"
+                          AutoGenerateColumns="False"
+                          GridLinesVisibility="All"
+                          BorderThickness="1"
+                          BorderBrush="#E5E7EB"
+                          Background="White">
+                    <DataGrid.Columns>
+
+                        <DataGridTextColumn Header="Code Patient"
+                                            Binding="{Binding NumPatient}"
+                                            IsReadOnly="True"
+                                            Width="110" />
+
+                        <DataGridTemplateColumn Header="Nom &amp; Prénom" Width="1.5*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate DataType="vm:PatientRowItem">
+                                    <Border Padding="5,0">
+                                        <Panel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding NomPatient}"
+                                                       Foreground="#1F2937"
+                                                       IsVisible="{Binding !IsEditing}" />
+                                            <TextBox Text="{Binding NomPatient, Mode=TwoWay}"
+                                                     IsVisible="{Binding IsEditing}" />
+                                        </Panel>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="État" Width="1.3*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate DataType="vm:PatientRowItem">
+                                    <Border Padding="5,0">
+                                        <Panel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Etat}"
+                                                       Foreground="#1F2937"
+                                                       IsVisible="{Binding !IsEditing}" />
+                                            <ComboBox ItemsSource="{Binding $parent[UserControl].DataContext.EtatsDisponibles}"
+                                                      SelectedItem="{Binding Etat, Mode=TwoWay}"
+                                                      HorizontalAlignment="Stretch"
+                                                      IsVisible="{Binding IsEditing}" />
+                                        </Panel>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Date Hosp." Width="1.2*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate DataType="vm:PatientRowItem">
+                                    <Border Padding="5,0">
+                                        <Panel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding DateHosp, StringFormat=\{0:dd/MM/yyyy\}}"
+                                                       Foreground="#1F2937"
+                                                       IsVisible="{Binding !IsEditing}" />
+                                            <DatePicker SelectedDate="{Binding DateHosp, Mode=TwoWay}"
+                                                        HorizontalAlignment="Stretch"
+                                                        IsVisible="{Binding IsEditing}" />
+                                        </Panel>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Date Sortie" Width="1.2*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate DataType="vm:PatientRowItem">
+                                    <Border Padding="5,0">
+                                        <Panel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding DateSortie, StringFormat=\{0:dd/MM/yyyy\}}"
+                                                       Foreground="#1F2937"
+                                                       IsVisible="{Binding !IsEditing}" />
+                                            <DatePicker SelectedDate="{Binding DateSortie, Mode=TwoWay}"
+                                                        HorizontalAlignment="Stretch"
+                                                        IsVisible="{Binding IsEditing}" />
+                                        </Panel>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Chambre" Width="1*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate DataType="vm:PatientRowItem">
+                                    <Border Padding="5,0">
+                                        <Panel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding NumChambre}"
+                                                       Foreground="#1F2937"
+                                                       IsVisible="{Binding !IsEditing}" />
+                                            <ComboBox ItemsSource="{Binding $parent[UserControl].DataContext.ChambresDisponibles}"
+                                                      SelectedItem="{Binding NumChambre, Mode=TwoWay}"
+                                                      HorizontalAlignment="Stretch"
+                                                      IsVisible="{Binding IsEditing}" />
+                                        </Panel>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Actions" Width="170">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate DataType="vm:PatientRowItem">
+                                    <Border Padding="5">
+                                        <Panel>
+                                            <StackPanel Orientation="Horizontal"
+                                                        Spacing="5"
+                                                        HorizontalAlignment="Center"
+                                                        IsVisible="{Binding !IsEditing}">
+                                                <Button Content="Modifier"
+                                                        Command="{Binding $parent[UserControl].DataContext.ActiverEditionLigneCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        Background="#F59E0B"
+                                                        Foreground="White"
+                                                        FontSize="12"
+                                                        FontWeight="Bold"
+                                                        Padding="8,4"
+                                                        CornerRadius="4" />
+
+                                                <Button Content="Supprimer"
+                                                        Command="{Binding $parent[UserControl].DataContext.SupprimerLigneCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        Background="#EF4444"
+                                                        Foreground="White"
+                                                        FontSize="12"
+                                                        FontWeight="Bold"
+                                                        Padding="8,4"
+                                                        CornerRadius="4" />
+                                            </StackPanel>
+
+                                            <StackPanel Orientation="Horizontal"
+                                                        Spacing="5"
+                                                        HorizontalAlignment="Center"
+                                                        IsVisible="{Binding IsEditing}">
+                                                <Button Content="Enregistrer"
+                                                        Command="{Binding $parent[UserControl].DataContext.EnregistrerLigneCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        Background="#10B981"
+                                                        Foreground="White"
+                                                        FontSize="11"
+                                                        FontWeight="Bold"
+                                                        Padding="6,4"
+                                                        CornerRadius="4" />
+
+                                                <Button Content="Annuler"
+                                                        Command="{Binding $parent[UserControl].DataContext.AnnulerLigneCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        Background="#EF4444"
+                                                        Foreground="White"
+                                                        FontSize="11"
+                                                        FontWeight="Bold"
+                                                        Padding="6,4"
+                                                        CornerRadius="4" />
+                                            </StackPanel>
+                                        </Panel>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

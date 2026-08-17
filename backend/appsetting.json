@@ -1,0 +1,5 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Database=hospital;Username=postgres;Password='mdp'"
+  }
+}

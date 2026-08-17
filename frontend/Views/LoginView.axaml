@@ -1,0 +1,133 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:GestionHospitaliere.Frontend.ViewModels"
+             x:DataType="vm:LoginViewModel"
+             x:Class="GestionHospitaliere.Frontend.Views.LoginView">
+
+    <UserControl.Styles>
+        <!-- Style moderne pour les champs de texte -->
+        <Style Selector="TextBox">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="Background" Value="#F8FAFC"/>
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style Selector="TextBox:focus /template/ Border#PART_BorderElement">
+            <Setter Property="BorderBrush" Value="#2563EB"/>
+            <Setter Property="Background" Value="#FFFFFF"/>
+        </Style>
+
+        <!-- Style du Bouton Principal -->
+        <Style Selector="Button.primary">
+            <Setter Property="Background" Value="#2563EB"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+        <Style Selector="Button.primary:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#1D4ED8"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Grid>
+        <!-- Dégradé d'arrière-plan au format Avalonia -->
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Offset="0.0" Color="#F1F5F9" />
+                <GradientStop Offset="1.0" Color="#E2E8F0" />
+            </LinearGradientBrush>
+        </Grid.Background>
+        
+        <!-- Carte de connexion -->
+        <Border HorizontalAlignment="Center" 
+                VerticalAlignment="Center"
+                Width="380"
+                Background="White"
+                CornerRadius="16"
+                Padding="32,40"
+                BoxShadow="0 10 25 0 #1A000000">
+            
+            <StackPanel Spacing="24">
+                
+                <!-- En-tête : Icône Médicale & Titres -->
+                <StackPanel Spacing="8" HorizontalAlignment="Center">
+                    <Border Width="56" Height="56" 
+                            CornerRadius="28" 
+                            Background="#EFF6FF" 
+                            HorizontalAlignment="Center">
+                        <!-- Icône Croix Médicale -->
+                        <PathIcon Data="M19 3H5c-1.1 0-1.99.9-1.99 2L3 19c0 1.1.89 2 1.99 2H19c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1 11h-4v4h-4v-4H6v-4h4V6h4v4h4v4z"
+                                  Foreground="#2563EB"
+                                  Width="24" Height="24"/>
+                    </Border>
+                    
+                    <TextBlock Text="Gestion Hospitalière" 
+                               FontSize="22" 
+                               FontWeight="Bold" 
+                               Foreground="#0F172A"
+                               HorizontalAlignment="Center"/>
+                               
+                    <TextBlock Text="Connectez-vous à votre session" 
+                               FontSize="13" 
+                               Foreground="#64748B"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <!-- Champs du formulaire -->
+                <StackPanel Spacing="16">
+                    
+                    <!-- Champ Utilisateur -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Identifiant" 
+                                   FontSize="13" 
+                                   FontWeight="Medium" 
+                                   Foreground="#334155"/>
+                        <TextBox Text="{Binding Login}" 
+                                 PlaceholderText="Ex: medecin.dupont" />
+                    </StackPanel>
+
+                    <!-- Champ Mot de passe -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Mot de passe" 
+                                   FontSize="13" 
+                                   FontWeight="Medium" 
+                                   Foreground="#334155"/>
+                        <TextBox Text="{Binding Password}" 
+                                 PasswordChar="•" 
+                                 PlaceholderText="••••••••" />
+                    </StackPanel>
+
+                    <!-- Banner Message d'Erreur -->
+                    <Border Background="#FEF2F2" 
+                            BorderBrush="#FECACA"
+                            BorderThickness="1"
+                            CornerRadius="6" 
+                            Padding="10,8"
+                            Margin="0,4,0,0"
+                            IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                        <TextBlock Text="{Binding ErrorMessage}" 
+                                   Foreground="#DC2626" 
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   HorizontalAlignment="Center"/>
+                    </Border>
+
+                    <!-- Bouton de connexion -->
+                    <Button Content="Se connecter" 
+                            Command="{Binding LoginCommand}" 
+                            Classes="primary"
+                            HorizontalAlignment="Stretch" 
+                            Margin="0,8,0,0"/>
+
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

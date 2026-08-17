@@ -1,0 +1,334 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:GestionHospitaliere.Frontend.ViewModels"
+             xmlns:models="clr-namespace:GestionHospitaliere.Backend.Models;assembly=GestionHospitaliere.Backend"
+             mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="850"
+             x:Class="GestionHospitaliere.Frontend.Views.ConsultationView"
+             x:DataType="vm:ConsultationsViewModel">
+
+    <UserControl.Resources>
+        <DataTemplate x:Key="MedecinItemTemplate" x:DataType="models:Medecin">
+            <TextBlock VerticalAlignment="Center">
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}{0} - {1}">
+                        <Binding Path="CodeMed"/>
+                        <Binding Path="NomMed"/>
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+        </DataTemplate>
+
+        <DataTemplate x:Key="PatientItemTemplate" x:DataType="models:Patient">
+            <TextBlock VerticalAlignment="Center">
+                <TextBlock.Text>
+                    <MultiBinding StringFormat="{}{0} - {1}">
+                        <Binding Path="NumPatient"/>
+                        <Binding Path="NomPatient"/>
+                    </MultiBinding>
+                </TextBlock.Text>
+            </TextBlock>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="20" Margin="20">
+
+            <!-- BANNIÈRE DE NOTIFICATION -->
+            <Border IsVisible="{Binding IsNotificationVisible}"
+                    Background="{Binding NotificationColor}"
+                    CornerRadius="6" Padding="12,8">
+                <TextBlock Text="{Binding NotificationMessage}"
+                           Foreground="White"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"/>
+            </Border>
+
+            <!-- FORMULAIRE DE CRÉATION (2 Lignes) -->
+            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="20">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="Planifier une Consultation"
+                               Foreground="#0F172A"
+                               FontSize="18"
+                               FontWeight="Bold"/>
+
+                    <Grid ColumnDefinitions="*, *, *" RowDefinitions="Auto, Auto" RowSpacing="12" ColumnSpacing="15">
+                        <!-- Ligne 1 : Type, Frais, Date -->
+                        <StackPanel Grid.Row="0" Grid.Column="0" Spacing="5">
+                            <TextBlock Text="Type" Foreground="#64748B" FontWeight="Medium"/>
+                            <ComboBox ItemsSource="{Binding TypesList}"
+                                      SelectedItem="{Binding SelectedType}"
+                                      HorizontalAlignment="Stretch"
+                                      PlaceholderText="Sélectionner le type"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="0" Grid.Column="1" Spacing="5">
+                            <TextBlock Text="Frais (Ar/FCFA)" Foreground="#64748B" FontWeight="Medium"/>
+                            <TextBox Text="{Binding NewFrais}" PlaceholderText="Ex: 15000"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="0" Grid.Column="2" Spacing="5">
+                            <TextBlock Text="Date" Foreground="#64748B" FontWeight="Medium"/>
+                            <DatePicker SelectedDate="{Binding NewDate}" HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+
+                        <!-- Ligne 2 : Heure, Médecin, Patient + Boutons -->
+                        <StackPanel Grid.Row="1" Grid.Column="0" Spacing="5">
+                            <TextBlock Text="Heure" Foreground="#64748B" FontWeight="Medium"/>
+                            <TimePicker SelectedTime="{Binding NewTime}" HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Grid.Column="1" Spacing="5">
+                            <TextBlock Text="Médecin" Foreground="#64748B" FontWeight="Medium"/>
+                            <ComboBox ItemsSource="{Binding MedecinsList}"
+                                      SelectedItem="{Binding SelectedMedecin}"
+                                      ItemTemplate="{StaticResource MedecinItemTemplate}"
+                                      HorizontalAlignment="Stretch"
+                                      PlaceholderText="Sélectionner un médecin"/>
+                        </StackPanel>
+
+                        <Grid Grid.Row="1" Grid.Column="2" ColumnDefinitions="*, Auto" ColumnSpacing="10" VerticalAlignment="Bottom">
+                            <StackPanel Grid.Column="0" Spacing="5">
+                                <TextBlock Text="Patient" Foreground="#64748B" FontWeight="Medium"/>
+                                <ComboBox ItemsSource="{Binding PatientsList}"
+                                          SelectedItem="{Binding SelectedPatient}"
+                                          ItemTemplate="{StaticResource PatientItemTemplate}"
+                                          HorizontalAlignment="Stretch"
+                                          PlaceholderText="Sélectionner un patient"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
+                                <Button Content="Effacer"
+                                        Command="{Binding ViderFormulaireCommand}"
+                                        Background="#94A3B8" Foreground="White" Padding="10,8"/>
+                                <Button Content="Planifier"
+                                        Command="{Binding PlanifierCommand}"
+                                        Background="#10B981" Foreground="White"
+                                        FontWeight="Bold" Padding="12,8"/>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- SECTION DE RECHERCHE ET FILTRES (2 Lignes) -->
+            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="15">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="Filtres de recherche" Foreground="#0F172A" FontWeight="SemiBold"/>
+                    
+                    <!-- Ligne 1 des filtres -->
+                    <Grid ColumnDefinitions="*, *, *" ColumnSpacing="15">
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Text="Type" Foreground="#64748B" FontSize="12"/>
+                            <ComboBox ItemsSource="{Binding TypesList}"
+                                      SelectedItem="{Binding SearchType}"
+                                      HorizontalAlignment="Stretch"
+                                      PlaceholderText="Tous les types"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Text="Date début" Foreground="#64748B" FontSize="12"/>
+                            <DatePicker SelectedDate="{Binding SearchDate1}" HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Spacing="4">
+                            <TextBlock Text="Date fin" Foreground="#64748B" FontSize="12"/>
+                            <DatePicker SelectedDate="{Binding SearchDate2}" HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Ligne 2 des filtres -->
+                    <Grid ColumnDefinitions="*, *, Auto" ColumnSpacing="15" VerticalAlignment="Center">
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock Text="Médecin" Foreground="#64748B" FontSize="12"/>
+                            <ComboBox ItemsSource="{Binding MedecinsList}"
+                                      SelectedItem="{Binding SearchSelectedMedecin}"
+                                      ItemTemplate="{StaticResource MedecinItemTemplate}"
+                                      HorizontalAlignment="Stretch"
+                                      PlaceholderText="Tous les médecins"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Text="Patient" Foreground="#64748B" FontSize="12"/>
+                            <ComboBox ItemsSource="{Binding PatientsList}"
+                                      SelectedItem="{Binding SearchSelectedPatient}"
+                                      ItemTemplate="{StaticResource PatientItemTemplate}"
+                                      HorizontalAlignment="Stretch"
+                                      PlaceholderText="Tous les patients"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom">
+                            <Button Content="Réinitialiser" Command="{Binding ReinitialiserRechercheCommand}" Background="#94A3B8" Foreground="White" Padding="12,8"/>
+                            <Button Content="Rechercher" Command="{Binding RechercherCommand}" Background="#3B82F6" Foreground="White" FontWeight="Bold" Padding="15,8"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- TABLEAU DES CONSULTATIONS -->
+            <Border Background="White" BorderBrush="#E2E8F0" BorderThickness="1" CornerRadius="10" Padding="15">
+                <StackPanel Spacing="10">
+                    <!-- Entête du tableau -->
+                    <Grid ColumnDefinitions="0.6*, 1.1*, 1.8*, 1.2*, 1.2*, 1.1*, 1.6*" Margin="5,0">
+                        <TextBlock Grid.Column="0" Text="Réf" Foreground="#64748B" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="Type" Foreground="#64748B" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="2" Text="Date &amp; Heure" Foreground="#64748B" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="3" Text="Médecin" Foreground="#64748B" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="4" Text="Patient" Foreground="#64748B" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="5" Text="Facture" Foreground="#64748B" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="6" Text="Actions" Foreground="#64748B" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Grid>
+
+                    <Separator Background="#E2E8F0"/>
+
+                    <!-- Liste dynamique des consultations -->
+                    <ItemsControl ItemsSource="{Binding ConsultationsList}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="models:Consultation">
+                                <Panel Margin="0,2">
+
+                                    <!-- ===== MODE AFFICHAGE COMPACT (1 Ligne) ===== -->
+                                    <Border BorderBrush="#F1F5F9" BorderThickness="0,0,0,1" Padding="5,10">
+                                        <Border.IsVisible>
+                                            <MultiBinding Converter="{x:Static vm:ConsultationsViewModel.NotEqualsConverter}">
+                                                <Binding Path="."/>
+                                                <Binding Path="$parent[UserControl].DataContext.EditingConsultation"/>
+                                            </MultiBinding>
+                                        </Border.IsVisible>
+
+                                        <Grid ColumnDefinitions="0.6*, 1.1*, 1.8*, 1.2*, 1.2*, 1.1*, 1.6*" VerticalAlignment="Center">
+                                            <TextBlock Grid.Column="0" Text="{Binding RefCons}" Foreground="#0F172A" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Type}" Foreground="#0F172A" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Date, StringFormat='{}{0:dd/MM/yyyy HH:mm}'}" Foreground="#0F172A" VerticalAlignment="Center"/>
+
+                                            <TextBlock Grid.Column="3" Foreground="#0F172A" VerticalAlignment="Center">
+                                                <TextBlock.Text>
+                                                    <MultiBinding Converter="{x:Static vm:ConsultationsViewModel.MedecinCodeConverter}">
+                                                        <Binding Path="IdMed"/>
+                                                        <Binding Path="$parent[UserControl].DataContext.MedecinsList"/>
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+
+                                            <TextBlock Grid.Column="4" Foreground="#0F172A" VerticalAlignment="Center">
+                                                <TextBlock.Text>
+                                                    <MultiBinding Converter="{x:Static vm:ConsultationsViewModel.PatientNumConverter}">
+                                                        <Binding Path="IdPatient"/>
+                                                        <Binding Path="$parent[UserControl].DataContext.PatientsList"/>
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+
+                                            <!-- Badge Facture -->
+                                            <Border Grid.Column="5"
+                                                    CornerRadius="12"
+                                                    Padding="8,4"
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Center"
+                                                    Background="#F1F5F9">
+                                                <TextBlock Text="{Binding EtatFacture, TargetNullValue='Non-Payé'}"
+                                                           Foreground="#0F172A"
+                                                           FontWeight="SemiBold"
+                                                           FontSize="12"/>
+                                            </Border>
+
+                                            <StackPanel Grid.Column="6" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8" VerticalAlignment="Center">
+                                                <Button Content="Modifier"
+                                                        Command="{Binding $parent[UserControl].DataContext.CommencerEditionCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        Background="#F59E0B" Foreground="White" FontSize="12" Padding="10,4"/>
+
+                                                <Button Content="Supprimer"
+                                                        Command="{Binding $parent[UserControl].DataContext.SupprimerConsultationCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        Background="#EF4444" Foreground="White" FontSize="12" Padding="10,4"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- ===== MODE ÉDITION INLINE ÉTENDU (2 Lignes) ===== -->
+                                    <Border Background="#EFF6FF" BorderBrush="#93C5FD" BorderThickness="1.5" CornerRadius="8" Padding="12" Margin="0,4">
+                                        <Border.IsVisible>
+                                            <MultiBinding Converter="{x:Static vm:ConsultationsViewModel.EqualsConverter}">
+                                                <Binding Path="."/>
+                                                <Binding Path="$parent[UserControl].DataContext.EditingConsultation"/>
+                                            </MultiBinding>
+                                        </Border.IsVisible>
+
+                                        <Grid RowDefinitions="Auto, Auto" RowSpacing="10">
+                                            <!-- Ligne 1 d'édition : Réf, Type, Date, Heure, Frais -->
+                                            <Grid Grid.Row="0" ColumnDefinitions="0.6*, 1.2*, 1.5*, 1.2*, 1.2*" ColumnSpacing="10">
+                                                <StackPanel Grid.Column="0" Spacing="2">
+                                                    <TextBlock Text="Réf" FontSize="11" Foreground="#64748B" FontWeight="Bold"/>
+                                                    <TextBlock Text="{Binding RefCons}" Foreground="#0F172A" FontWeight="Bold" VerticalAlignment="Center" Margin="0,6,0,0"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="1" Spacing="2">
+                                                    <TextBlock Text="Type" FontSize="11" Foreground="#64748B" FontWeight="Bold"/>
+                                                    <ComboBox ItemsSource="{Binding $parent[UserControl].DataContext.TypesList}"
+                                                              SelectedItem="{Binding $parent[UserControl].DataContext.EditType}"
+                                                              HorizontalAlignment="Stretch"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="2" Spacing="2">
+                                                    <TextBlock Text="Date" FontSize="11" Foreground="#64748B" FontWeight="Bold"/>
+                                                    <DatePicker SelectedDate="{Binding $parent[UserControl].DataContext.EditDate}"
+                                                                HorizontalAlignment="Stretch"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="3" Spacing="2">
+                                                    <TextBlock Text="Heure" FontSize="11" Foreground="#64748B" FontWeight="Bold"/>
+                                                    <TimePicker SelectedTime="{Binding $parent[UserControl].DataContext.EditTime}"
+                                                                HorizontalAlignment="Stretch"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="4" Spacing="2">
+                                                    <TextBlock Text="Frais (Ar/FCFA)" FontSize="11" Foreground="#64748B" FontWeight="Bold"/>
+                                                    <TextBox Text="{Binding $parent[UserControl].DataContext.EditFrais}"/>
+                                                </StackPanel>
+                                            </Grid>
+
+                                            <!-- Ligne 2 d'édition : Médecin, Patient, État Facture, Actions -->
+                                            <Grid Grid.Row="1" ColumnDefinitions="1.5*, 1.5*, 1.2*, Auto" ColumnSpacing="10" VerticalAlignment="Center">
+                                                <StackPanel Grid.Column="0" Spacing="2">
+                                                    <TextBlock Text="Médecin" FontSize="11" Foreground="#64748B" FontWeight="Bold"/>
+                                                    <ComboBox ItemsSource="{Binding $parent[UserControl].DataContext.MedecinsList}"
+                                                              SelectedItem="{Binding $parent[UserControl].DataContext.EditSelectedMedecin}"
+                                                              ItemTemplate="{StaticResource MedecinItemTemplate}"
+                                                              HorizontalAlignment="Stretch"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="1" Spacing="2">
+                                                    <TextBlock Text="Patient" FontSize="11" Foreground="#64748B" FontWeight="Bold"/>
+                                                    <ComboBox ItemsSource="{Binding $parent[UserControl].DataContext.PatientsList}"
+                                                              SelectedItem="{Binding $parent[UserControl].DataContext.EditSelectedPatient}"
+                                                              ItemTemplate="{StaticResource PatientItemTemplate}"
+                                                              HorizontalAlignment="Stretch"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="2" Spacing="2">
+                                                    <TextBlock Text="Facture" FontSize="11" Foreground="#64748B" FontWeight="Bold"/>
+                                                    <ComboBox ItemsSource="{Binding $parent[UserControl].DataContext.EtatsFactureList}"
+                                                              SelectedItem="{Binding $parent[UserControl].DataContext.EditEtatFacture}"
+                                                              HorizontalAlignment="Stretch"/>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom">
+                                                    <Button Content="Annuler"
+                                                            Command="{Binding $parent[UserControl].DataContext.AnnulerEditionCommand}"
+                                                            Background="#94A3B8" Foreground="White" Padding="10,6"/>
+                                                    <Button Content="Enregistrer"
+                                                            Command="{Binding $parent[UserControl].DataContext.SauvegarderEditionCommand}"
+                                                            Background="#3B82F6" Foreground="White" FontWeight="Bold" Padding="12,6"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+
+                                </Panel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

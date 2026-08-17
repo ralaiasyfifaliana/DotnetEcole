@@ -1,0 +1,82 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:GestionHospitaliere.Frontend.ViewModels"
+             x:DataType="vm:DashboardViewModel"
+             x:Class="GestionHospitaliere.Frontend.Views.DashboardView">
+
+    <Grid RowDefinitions="Auto, *">
+        
+        <!-- En-tête / Barre de navigation -->
+        <Border Grid.Row="0" Background="#1E293B" Padding="15,10">
+            <Grid ColumnDefinitions="Auto, *">
+                
+                <!-- Gauche : Titre, Rôle et Bouton Déconnexion -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="15" VerticalAlignment="Center">
+                    <TextBlock Text="GESTION HOSPITALIÈRE" 
+                               Foreground="White" 
+                               FontWeight="Bold" 
+                               FontSize="16" 
+                               VerticalAlignment="Center"/>
+                    
+                    <Border Background="#334155" CornerRadius="4" Padding="8,4" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding UtilisateurConnecte.Type, StringFormat='Rôle: {0}'}" 
+                                   Foreground="#94A3B8" 
+                                   FontSize="12"/>
+                    </Border>
+
+                    <!--Bouton Déconnexion -->
+                    <Button Content="Déconnexion" 
+                            Command="{Binding DeconnexionCommand}"
+                            Background="#EF4444" 
+                            Foreground="White"
+                            Padding="10,5"
+                            Margin="10,0,0,0"/>
+                </StackPanel>
+
+                <!-- Droite : Menus de Navigation -->
+                <StackPanel Grid.Column="1" 
+                            Orientation="Horizontal" 
+                            HorizontalAlignment="Right" 
+                            Spacing="8">
+
+                    <Button Content="Dashboard" 
+                            Command="{Binding NaviguerDashboardCommand}"
+                            Background="#3B82F6" 
+                            Foreground="White"
+                            Padding="12,6"/>
+
+                    <Button Content="Consultations" 
+                            Command="{Binding NaviguerConsultationsCommand}"
+                            Background="Transparent" 
+                            Foreground="#E2E8F0"
+                            Padding="12,6"/>
+
+                    <Button Content="Médecins" 
+                            Command="{Binding NaviguerMedecinsCommand}"
+                            Background="Transparent" 
+                            Foreground="#E2E8F0"
+                            Padding="12,6"/>
+
+                    <Button Content="Patients" 
+                            Command="{Binding NaviguerPatientsCommand}"
+                            Background="Transparent" 
+                            Foreground="#E2E8F0"
+                            Padding="12,6"/>
+
+                    <Button Content="Chambres" 
+                            Command="{Binding NaviguerChambresCommand}"
+                            Background="Transparent" 
+                            Foreground="#E2E8F0"
+                            Padding="12,6"/>
+
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Zone de contenu -->
+        <Grid Grid.Row="1" Background="#F8FAFC">
+            <ContentControl Content="{Binding CurrentSectionViewModel}" />
+        </Grid>
+
+    </Grid>
+</UserControl>

@@ -1,0 +1,113 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:GestionHospitaliere.Frontend.ViewModels"
+             x:DataType="vm:ChambresViewModel"
+             x:Class="GestionHospitaliere.Frontend.Views.ChambreView">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="20" Spacing="20">
+
+            <!-- EN-TÊTE -->
+            <TextBlock Text="Gestion des Chambres &amp; Hospitalisations"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       Foreground="#1E293B" />
+
+            <!-- NOTIFICATION -->
+            <Border Background="{Binding NotificationColor}"
+                    CornerRadius="6"
+                    Padding="12"
+                    IsVisible="{Binding IsNotificationVisible}">
+                <TextBlock Text="{Binding NotificationMessage}"
+                           Foreground="White"
+                           FontWeight="SemiBold" />
+            </Border>
+
+            <!-- BARRE DE RECHERCHE -->
+            <Border Background="White" CornerRadius="8" Padding="15" BoxShadow="0 2 10 0 #1A000000">
+                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <TextBlock Text="Numéro de Chambre :"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"
+                               Foreground="#475569" />
+
+                    <TextBox Text="{Binding SearchNumChambre}"
+                             PlaceholderText="Ex: 101"
+                             Width="200" />
+
+                    <Button Content="Rechercher"
+                            Command="{Binding RechercherCommand}"
+                            Background="#3B82F6"
+                            Foreground="White"
+                            Padding="15,8"
+                            FontWeight="SemiBold" />
+
+                    <Button Content="Réinitialiser"
+                            Command="{Binding ReinitialiserCommand}"
+                            Background="#64748B"
+                            Foreground="White"
+                            Padding="15,8" />
+                </StackPanel>
+            </Border>
+
+            <!-- LISTE DES CHAMBRES -->
+            <Border Background="White" CornerRadius="8" Padding="15" BoxShadow="0 2 10 0 #1A000000">
+                <DataGrid ItemsSource="{Binding ChambresList}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          GridLinesVisibility="All"
+                          BorderThickness="1"
+                          BorderBrush="#E2E8F0">
+                    <DataGrid.Columns>
+
+                        <DataGridTextColumn Header="N° Chambre"
+                                            Binding="{Binding NumChambre}"
+                                            Width="1*" />
+
+                        <DataGridTextColumn Header="Capacité (Lits)"
+                                            Binding="{Binding NbrLit}"
+                                            Width="1*" />
+
+                        <DataGridTextColumn Header="Lits Occupés"
+                                            Binding="{Binding LitsOccupes}"
+                                            Width="1*" />
+
+                        <!-- Badge Statut -->
+                        <DataGridTemplateColumn Header="Statut" Width="1.5*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="vm:ChambreItemViewModel">
+                                    <Border Background="{Binding StatutColor}"
+                                            CornerRadius="4"
+                                            Padding="8,4"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"
+                                            Margin="4,0">
+                                        <TextBlock Text="{Binding StatutChambre}"
+                                                   Foreground="White"
+                                                   FontSize="11"
+                                                   FontWeight="Bold" />
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Liste des patients occupants -->
+                        <DataGridTemplateColumn Header="Patients Occupants" Width="3*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="vm:ChambreItemViewModel">
+                                    <TextBlock Text="{Binding SummaryPatients}"
+                                               TextWrapping="Wrap"
+                                               VerticalAlignment="Center"
+                                               Margin="8,4"
+                                               Foreground="#334155" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

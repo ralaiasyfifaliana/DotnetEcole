@@ -1,0 +1,187 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:GestionHospitaliere.Frontend.ViewModels"
+             x:DataType="vm:MedecinsViewModel"
+             x:Class="GestionHospitaliere.Frontend.Views.MedecinsView">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="20" Spacing="20">
+
+            <TextBlock Text="Gestion des Médecins"
+                       FontSize="22"
+                       FontWeight="Bold"
+                       Foreground="#1E293B" />
+
+            <!-- BANNIÈRE DE NOTIFICATION -->
+            <Border Background="{Binding NotificationColor}"
+                    CornerRadius="6"
+                    Padding="12"
+                    IsVisible="{Binding IsNotificationVisible}">
+                <Grid ColumnDefinitions="*, Auto">
+                    <TextBlock Text="{Binding NotificationMessage}"
+                               Foreground="White"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+
+            <!-- FORMULAIRE D'AJOUT -->
+            <Border Background="White" CornerRadius="8" Padding="20" BoxShadow="0 2 10 0 #1A000000">
+                <StackPanel Spacing="15">
+                    <TextBlock Text="Nouveau Médecin" FontSize="16" FontWeight="Bold" Foreground="#334155" />
+
+                    <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, *, *, *" ColumnSpacing="12" RowSpacing="10">
+                        <StackPanel Grid.Row="0" Grid.Column="0" Spacing="5">
+                            <TextBlock Text="Code Médecin" FontSize="12" Foreground="#64748B" />
+                            <TextBox Text="{Binding CodeMed}" PlaceholderText="Ex: MED001" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="0" Grid.Column="1" Spacing="5">
+                            <TextBlock Text="Nom du Médecin" FontSize="12" Foreground="#64748B" />
+                            <TextBox Text="{Binding NomMed}" PlaceholderText="Nom et Prénom" />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="0" Grid.Column="2" Spacing="5">
+                            <TextBlock Text="Poste / Spécialité" FontSize="12" Foreground="#64748B" />
+                            <ComboBox ItemsSource="{Binding PostesList}"
+                                      SelectedItem="{Binding SelectedPoste}"
+                                      HorizontalAlignment="Stretch"
+                                      PlaceholderText="Sélectionner..." />
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="0" Grid.Column="3" Spacing="5">
+                            <TextBlock Text="Mot de passe" FontSize="12" Foreground="#64748B" />
+                            <TextBox Text="{Binding Password}" PasswordChar="*" PlaceholderText="Mot de passe" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Button Content="Ajouter le Médecin"
+                            Command="{Binding AjouterMedecinCommand}"
+                            Background="#10B981"
+                            Foreground="White"
+                            HorizontalAlignment="Right"
+                            Padding="20,10"
+                            FontWeight="Bold"
+                            CornerRadius="5" />
+                </StackPanel>
+            </Border>
+
+            <!-- BARRE DE RECHERCHE -->
+            <Border Background="White" CornerRadius="8" Padding="15" BoxShadow="0 2 10 0 #1A000000">
+                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+                    <TextBlock Text="Rechercher :" FontWeight="Bold" VerticalAlignment="Center" Foreground="#475569" />
+
+                    <TextBox Text="{Binding SearchQuery}"
+                             PlaceholderText="Recherche par code ou nom..."
+                             Width="250" />
+
+                    <ComboBox ItemsSource="{Binding PostesList}"
+                              SelectedItem="{Binding SearchPoste}"
+                              Width="180"
+                              PlaceholderText="Tous les postes" />
+
+                    <Button Content="Chercher"
+                            Command="{Binding RechercherCommand}"
+                            Background="#3B82F6"
+                            Foreground="White"
+                            Padding="15,8" />
+
+                    <Button Content="Réinitialiser"
+                            Command="{Binding ReinitialiserRechercheCommand}"
+                            Background="#64748B"
+                            Foreground="White"
+                            Padding="15,8" />
+                </StackPanel>
+            </Border>
+
+            <!-- LISTE DES MÉDECINS AVEC MODIFICATION INLINE -->
+            <Border Background="White" CornerRadius="8" Padding="15" BoxShadow="0 2 10 0 #1A000000">
+                <DataGrid ItemsSource="{Binding MedecinsList}"
+                          AutoGenerateColumns="False"
+                          IsReadOnly="True"
+                          GridLinesVisibility="All"
+                          BorderThickness="1"
+                          BorderBrush="#E2E8F0">
+                    <DataGrid.Columns>
+
+                        <!-- Code Médecin (Fixe, non modifiable) -->
+                        <DataGridTextColumn Header="Code Médecin" Binding="{Binding Model.CodeMed}" Width="*" />
+
+                        <!-- Nom & Prénom (Affichage vs Édition) -->
+                        <DataGridTemplateColumn Header="Nom &amp; Prénom" Width="2*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="vm:MedecinItemViewModel">
+                                    <Panel Margin="5,0">
+                                        <TextBlock Text="{Binding Model.NomMed}"
+                                                   VerticalAlignment="Center"
+                                                   IsVisible="{Binding IsNotEditing}" />
+                                        <TextBox Text="{Binding EditNomMed}"
+                                                 VerticalAlignment="Center"
+                                                 IsVisible="{Binding IsEditing}" />
+                                    </Panel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Poste (Affichage vs Édition via Liste Déroulante) -->
+                        <DataGridTemplateColumn Header="Poste" Width="1.5*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="vm:MedecinItemViewModel">
+                                    <Panel Margin="5,0">
+                                        <TextBlock Text="{Binding Model.Poste}"
+                                                   VerticalAlignment="Center"
+                                                   IsVisible="{Binding IsNotEditing}" />
+                                        <ComboBox ItemsSource="{Binding PostesList}"
+                                                  SelectedItem="{Binding EditPoste}"
+                                                  HorizontalAlignment="Stretch"
+                                                  VerticalAlignment="Center"
+                                                  IsVisible="{Binding IsEditing}" />
+                                    </Panel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Actions : Modifier/Valider, Annuler, Supprimer -->
+                        <DataGridTemplateColumn Header="Actions" Width="220">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate x:DataType="vm:MedecinItemViewModel">
+                                    <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                                        <!-- Bouton Modifier / Valider -->
+                                        <Button Content="{Binding ButtonModifierText}"
+                                                Command="{Binding BasculerOuValiderEditionCommand}"
+                                                Background="{Binding ButtonModifierColor}"
+                                                Foreground="White"
+                                                Padding="8,4"
+                                                FontSize="11" />
+
+                                        <!-- Bouton Annuler (apparaît seulement pendant l'édition) -->
+                                        <Button Content="X"
+                                                Command="{Binding AnnulerEditionCommand}"
+                                                Background="#64748B"
+                                                Foreground="White"
+                                                Padding="8,4"
+                                                FontSize="11"
+                                                IsVisible="{Binding IsEditing}" />
+
+                                        <!-- Bouton Supprimer -->
+                                        <Button Content="Supprimer"
+                                                Command="{Binding SupprimerCommand}"
+                                                Background="#EF4444"
+                                                Foreground="White"
+                                                Padding="8,4"
+                                                FontSize="11"
+                                                IsVisible="{Binding IsNotEditing}" />
+
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

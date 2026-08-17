@@ -1,0 +1,45 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:GestionHospitaliere.Frontend.ViewModels"
+        xmlns:views="using:GestionHospitaliere.Frontend.Views"
+        x:Class="GestionHospitaliere.Frontend.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Gestion Hospitalière"
+        Width="800" Height="500"
+        WindowStartupLocation="CenterScreen">
+
+    <!-- 1. Indiquer à Avalonia quelle vue correspond à quel ViewModel -->
+    <Window.DataTemplates>
+        <DataTemplate DataType="vm:LoginViewModel">
+            <views:LoginView />
+        </DataTemplate>
+
+        <DataTemplate DataType="vm:DashboardViewModel">
+            <views:DashboardView />
+        </DataTemplate>
+
+        <DataTemplate DataType="vm:MedecinsViewModel">
+            <views:MedecinsView />
+        </DataTemplate>
+
+        <DataTemplate DataType="vm:ChambresViewModel">
+            <views:ChambreView />
+        </DataTemplate>
+        
+        <DataTemplate DataType="vm:PatientsViewModel">
+            <views:PatientView />
+        </DataTemplate>
+
+        <DataTemplate DataType="vm:ConsultationsViewModel">
+            <views:ConsultationView />
+        </DataTemplate>
+
+        <DataTemplate DataType="vm:MedecinSessionViewModel">
+            <views:MedecinSessionView />
+        </DataTemplate>
+    </Window.DataTemplates>
+
+    <!-- 2. C'est ce composant qui va afficher physiquement la vue -->
+    <ContentControl Content="{Binding CurrentViewModel}" />
+
+</Window>
